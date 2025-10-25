@@ -1,4 +1,5 @@
 const questions = [
+  // 1
   {
     category: 'Verbal Reasoning',
     question: 'Which word is MOST OPPOSITE to "Benevolent"?',
@@ -6,6 +7,7 @@ const questions = [
     correct: 'Malevolent',
     difficulty: 1
   },
+  // 2
   {
     category: 'Verbal Reasoning',
     question: 'Complete the analogy: "BOOK is to READING as TELESCOPE is to ____"',
@@ -13,69 +15,28 @@ const questions = [
     correct: 'Astronomy',
     difficulty: 2
   },
+  // 3
   {
     category: 'Verbal Reasoning',
-    question: 'What word means the OPPOSITE of "Transparent"?',
-    options: ['Clear', 'Opaque', 'Visible', 'Translucent'],
-    correct: 'Opaque',
+    question: 'Find the correctly spelled word:',
+    options: ['Definately', 'Definetely', 'Definitely', 'Definatly'],
+    correct: 'Definitely',
     difficulty: 1
   },
-  {
-    category: 'Verbal Reasoning',
-    question: 'If "PAINTER" is coded as "IQMRZIV", what would "DOCTOR" be coded as?',
-    options: ['KVXRVI', 'KVGZVI', 'QVXSZI', 'MVGZVI'],
-    correct: 'KVGZVI',
-    difficulty: 2
-  },
-  {
-    category: 'Verbal Reasoning',
-    question: 'Select the word that completes the sequence: STUDY → STUDIES → STUDYING → ____',
-    options: ['Study', 'Studies', 'Studious', 'Studied'],
-    correct: 'Studied',
-    difficulty: 1
-  },
-  {
-    category: 'Numerical Reasoning',
-    question: 'What is the next number in the sequence: 2, 4, 8, 16, ____?',
-    options: ['24', '31', '32', '64'],
-    correct: '32',
-    difficulty: 1
-  },
-  {
-    category: 'Numerical Reasoning',
-    question: 'If 3 workers can complete a job in 12 days, how many days would 4 workers take?',
-    options: ['9 days', '8 days', '10 days', '6 days'],
-    correct: '8 days',
-    difficulty: 2
-  },
-  {
-    category: 'Numerical Reasoning',
-    question: 'What number logically follows? 1, 4, 9, 16, ____',
-    options: ['20', '25', '30', '36'],
-    correct: '25',
-    difficulty: 2
-  },
-  {
-    category: 'Numerical Reasoning',
-    question: 'A train travels 240 miles in 4 hours. What is its speed?',
-    options: ['50 miles/hour', '60 miles/hour', '70 miles/hour', '80 miles/hour'],
-    correct: '60 miles/hour',
-    difficulty: 1
-  },
-  {
-    category: 'Numerical Reasoning',
-    question: 'If x + 5 = 15, what is the value of x?',
-    options: ['5', '10', '15', '20'],
-    correct: '10',
-    difficulty: 1
-  },
+  // 4
   {
     category: 'Logical Reasoning',
-    question: 'If all cats are mammals, and some mammals are pets, what is DEFINITELY true?',
-    options: ['All cats are pets', 'Some pets are cats', 'No cats are pets', 'Some mammals are not cats'],
-    correct: 'Some pets are cats',
-    difficulty: 1
+    question: 'If all roses are flowers, and some flowers fade quickly, what can be concluded?',
+    options: [
+      'All roses fade quickly',
+      'Some roses fade quickly',
+      'Some flowers are roses',
+      'All flowers are roses'
+    ],
+    correct: 'Some flowers are roses',
+    difficulty: 2
   },
+  // 5
   {
     category: 'Logical Reasoning',
     question: 'Tom is taller than John. John is shorter than Mary. Who is the shortest?',
@@ -83,13 +44,31 @@ const questions = [
     correct: 'John',
     difficulty: 2
   },
+  // 6
   {
-    category: 'Logical Reasoning',
-    question: 'If A → B and B → C, then A → C. This is an example of what logical principle?',
-    options: ['Contradiction', 'Transitive Relation', 'Commutative Property', 'Associative Property'],
-    correct: 'Transitive Relation',
+    category: 'Numerical Reasoning',
+    question: 'What is the next number in the sequence: 2, 4, 8, 16, ____?',
+    options: ['24', '31', '32', '64'],
+    correct: '32',
+    difficulty: 1
+  },
+  // 7
+  {
+    category: 'Numerical Reasoning',
+    question: 'If 3 workers can complete a job in 12 days, how many days would 4 workers take?',
+    options: ['9 days', '8 days', '10 days', '6 days'],
+    correct: '9 days',
     difficulty: 2
   },
+  // 8
+  {
+    category: 'Numerical Reasoning',
+    question: 'A train travels 300 miles in 5 hours. What is its speed?',
+    options: ['50 mph', '60 mph', '70 mph', '80 mph'],
+    correct: '60 mph',
+    difficulty: 1
+  },
+  // 9
   {
     category: 'Spatial Reasoning',
     question: 'Which sequence continues the pattern? A, C, F, J, ____',
@@ -97,50 +76,56 @@ const questions = [
     correct: 'M',
     difficulty: 1
   },
+  // 10
   {
     category: 'Spatial Reasoning',
-    question: 'A cube has different colors on its faces: red on top, blue on front, green on right side, yellow on left side, white on bottom, and black on back. If the cube is rotated 90 degrees clockwise from its original position, what color will be on the front face?',
-    options: ['Blue', 'Green', 'Yellow', 'Red'],
-    correct: 'Yellow',
+    question: 'If a cube has red on top and blue on the front, after a 90° clockwise rotation, what color is now on the right?',
+    options: ['Red', 'Blue', 'Green', 'Yellow'],
+    correct: 'Blue',
     difficulty: 2
   }
 ];
 
+// ====== VARIABLES ======
 let current = 0;
 let answers = [];
 const startTime = Date.now();
 let result = null;
 
+// ====== CORE FUNCTIONS ======
+
 function showQuestion() {
-    if (current >= questions.length) {
-        calculateScore();
-        return;
-    }
-  const question = questions[current];
-  document.getElementById('question-title').innerText = `Question ${current + 1} of ${questions.length}`;
-  document.getElementById('question-text').innerText = question.question;
+  if (current >= questions.length) {
+    calculateScore();
+    return;
+  }
+
+  const q = questions[current];
+  document.getElementById('question-title').innerText = `Question ${current + 1}`;
+  document.getElementById('question-text').innerText = q.question;
 
   const optionsContainer = document.getElementById('options-container');
   optionsContainer.innerHTML = '';
 
-  question.options.forEach((opt, idx) => {
+  q.options.forEach(opt => {
     const button = document.createElement('button');
     button.innerText = opt;
+    button.className = 'option-btn';
     button.onclick = () => handleAnswer(opt);
     optionsContainer.appendChild(button);
   });
 
-  document.getElementById('question-counter').innerText = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('question-counter').innerText =
+    `Category: ${q.category} • ${current + 1} of ${questions.length}`;
 }
 
 function handleAnswer(answer) {
   answers.push(answer);
-
-  if (answers.length === questions.length) {
-    calculateScore();
-  } else {
-    current++;
+  current++;
+  if (current < questions.length) {
     showQuestion();
+  } else {
+    calculateScore();
   }
 }
 
@@ -155,46 +140,58 @@ function calculateScore() {
     }
   });
 
-  if (duration < 30) {
-    showError('The test was completed too quickly. Please take your time and try again.');
+  // Time checks
+  if (duration < 15) {
+    showError('Finished too quickly! Try again carefully.');
     resetTest();
     return;
-  } else if (duration > 780) {
-    total *= 0.75;
-    showError('Took too long! Score reduced by 25%.');
+  } else if (duration > 600) {
+    total *= 0.8;
+    showError('You took too long! Score reduced by 20%.');
   }
 
   total = Math.max(0, total);
-  let iq = 80 + Math.floor((total / 110) * 40);
+  let iq = 80 + Math.floor((total / 50) * 40);
   iq = Math.min(iq, 160);
-
-  localStorage.setItem('iq_score', iq);
   result = iq;
+  localStorage.setItem('iq_score', iq);
+
   showResult();
 }
 
 function showResult() {
-  document.getElementById('question-container').style.display = 'none';
+  // If passed, redirect immediately
+  if (result >= 110) {
+    window.location.href = "success.html"; // Redirect without showing IQ
+    return;
+  }
+
+  // If failed, show IQ score
+  document.getElementById('question-area').style.display = 'none';
+  document.getElementById('options-container').style.display = 'none';
+  document.getElementById('question-counter').style.display = 'none';
   document.getElementById('result-container').style.display = 'block';
   document.getElementById('iq-score').innerText = result;
+
+  showError("You didn't meet the passing IQ score. Try again!");
 }
 
-function showError(message) {
-  const errorMessage = document.getElementById('error-message');
-  errorMessage.innerText = message;
-  setTimeout(() => {
-    errorMessage.innerText = '';
-  }, 3000);
+function showError(msg) {
+  const err = document.getElementById('error-message');
+  err.style.display = 'block';
+  err.innerText = msg;
+  setTimeout(() => (err.style.display = 'none'), 4000);
 }
 
 function resetTest() {
-  setTimeout(() => {
-    current = 0;
-    answers = [];
-    document.getElementById('question-container').style.display = 'block';
-    document.getElementById('result-container').style.display = 'none';
-    showQuestion();
-  }, 3000);
+  current = 0;
+  answers = [];
+  document.getElementById('result-container').style.display = 'none';
+  document.getElementById('question-area').style.display = 'block';
+  document.getElementById('options-container').style.display = 'flex';
+  document.getElementById('question-counter').style.display = 'block';
+  showQuestion();
 }
 
+// ====== START TEST ======
 showQuestion();

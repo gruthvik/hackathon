@@ -1,55 +1,174 @@
+/* ===== GENERAL ===== */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: "Poppins", sans-serif;
+  background: radial-gradient(circle at top, #1e3c72, #2a5298);
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  margin: 0;
+  color: #fff;
+  overflow: hidden;
 }
 
-#app {
-  text-align: center;
+/* ===== CARD CONTAINER ===== */
+.wrapper {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.iq-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  width: 90%;
   max-width: 600px;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 1s ease-in-out;
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+/* ===== TITLE ===== */
+.app-title {
+  font-size: 2.2em;
+  font-weight: 700;
+  margin-bottom: 25px;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-button:hover {
-  background-color: #45a049;
+/* ===== QUESTION AREA ===== */
+.question-title {
+  font-size: 1.4em;
+  margin-bottom: 10px;
+  color: #f4f4f4;
 }
 
-.error-message {
-  color: red;
-  font-weight: bold;
+.question-text {
+  font-size: 1.1em;
+  margin-bottom: 25px;
+  color: #e0e0e0;
+}
+
+/* ===== OPTIONS ===== */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
+.options-container button {
+  background: linear-gradient(90deg, #43cea2, #185a9d);
+  border: none;
+  color: #fff;
+  padding: 15px 20px;
+  font-size: 1em;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.options-container button:hover {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 114, 255, 0.3);
+}
+
+.options-container button:active {
+  transform: scale(0.98);
+}
+
+/* ===== COUNTER ===== */
+.question-counter {
+  margin-top: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  display: inline-block;
+  border-radius: 20px;
+  font-size: 0.95em;
+  color: #f8f8f8;
+}
+
+/* ===== RESULT SECTION ===== */
 .result-container {
-  font-size: 24px;
-  font-weight: bold;
+  margin-top: 30px;
+  text-align: center;
 }
 
-.question-container {
-  display: block;
+.result-container h2 {
+  font-size: 1.8em;
+  margin-bottom: 10px;
+  color: #ffdf6c;
 }
 
-#question-counter {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: normal;
+.iq-score {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: #00ffcc;
+  text-shadow: 0 3px 10px rgba(0, 255, 204, 0.5);
+  margin-bottom: 15px;
+}
+
+.restart-btn {
+  background: linear-gradient(90deg, #ff758c, #ff7eb3);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 25px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.restart-btn:hover {
+  background: linear-gradient(90deg, #ff7eb3, #ff758c);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255, 118, 171, 0.3);
+}
+
+/* ===== ERROR MESSAGE ===== */
+.error-message {
+  background: rgba(255, 99, 71, 0.2);
+  color: #ff6b6b;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  animation: shake 0.4s ease;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .iq-card {
+    padding: 25px;
+  }
+
+  .app-title {
+    font-size: 1.8em;
+  }
+
+  .options-container button {
+    font-size: 0.9em;
+    padding: 12px;
+  }
 }
