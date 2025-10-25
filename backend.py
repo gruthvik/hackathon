@@ -210,6 +210,9 @@ def get_sessions():
 =======
     sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
 >>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
+=======
+    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
+>>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
     data = [
         {
             "sessionname": s.sessionname,
@@ -243,6 +246,8 @@ def get_chat_history():
 @app.route("/temp_get_response", methods=["POST"])
 def temp_get_response():
 =======
+=======
+>>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
 # API route for Gemini response
 @app.route("/get_response", methods=["POST"])
 def get_response():
