@@ -91,6 +91,7 @@ const questions = [
 ];
 
 // ====== VARIABLES ======
+let iq = 0;
 let current = 0;
 let answers = [];
 const startTime = Date.now();
@@ -151,7 +152,7 @@ function calculateScore() {
   }
 
   total = Math.max(0, total);
-  let iq = 80 + Math.floor((total / 50) * 40);
+  iq = 80 + Math.floor((total / 50) * 40);
   iq = Math.min(iq, 160);
   result = iq;
   localStorage.setItem('iq', iq);
@@ -162,6 +163,7 @@ const backendUrl="http://127.0.0.1:5000";
 async function  saveresult() {
   // If passed, redirect immediately) 
     try{
+      console.log(username,iq);
       const response = await fetch(`${backendUrl}/saveresult`, {
         method: 'POST',
         headers: {
@@ -175,7 +177,7 @@ async function  saveresult() {
     }catch(err){
       console.error('Error saving IQ score:', err);
     }
-    window.location.href = `../dashboard/dashboard.html?username=${username}`; // Redirect without showing IQ
+    // window.location.href = `../dashboard/dashboard.html?username=${username}`; // Redirect without showing IQ
     return;
   }
 

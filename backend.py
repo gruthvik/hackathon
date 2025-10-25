@@ -85,9 +85,13 @@ def login():
 
 @app.route("/saveresult", methods=["POST"])
 def save_result():
+    print("hello world")
     data = request.get_json()
     username = data.get("username")
     iq = data.get("iq")
+    if iq:
+        print("Username",username)
+        print("IQ",iq)
 
     user = User.query.filter_by(username=username).first()
     if not user:
