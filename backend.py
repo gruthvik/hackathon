@@ -18,6 +18,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
+API_KEY = "AIzaSyB-oPqilevRwC9S8sRXAOepx7BkKMakdHw"
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+
 # User table model
 class User(db.Model):
     __tablename__ = 'user'
@@ -77,12 +80,23 @@ def login():
 
     return jsonify({
         "message": "Login successful", 
-        "username": user.username
+        "iq": user.iq
     }), 200
 
-API_KEY = "AIzaSyB-oPqilevRwC9S8sRXAOepx7BkKMakdHw"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+@app.route("/saveresult", methods=["POST"])
+def save_result():
+    data = request.get_json()
+    username = data.get("username")
+    iq = data.get("iq")
 
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    user.iq = iq
+    db.session.commit()
+
+    return jsonify({"message": "IQ score saved successfully"}), 200
 @app.route("/")
 def home():
     return send_from_directory('.', 'chatbot.html')

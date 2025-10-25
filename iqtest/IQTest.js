@@ -1,3 +1,7 @@
+
+const params = new URLSearchParams(window.location.search);
+const username = params.get("username");
+
 const questions = [
   // 1
   {
@@ -122,11 +126,7 @@ function showQuestion() {
 function handleAnswer(answer) {
   answers.push(answer);
   current++;
-  if (current < questions.length) {
-    showQuestion();
-  } else {
-    calculateScore();
-  }
+  showQuestion(); 
 }
 
 function calculateScore() {
@@ -141,7 +141,7 @@ function calculateScore() {
   });
 
   // Time checks
-  if (duration < 15) {
+  if (duration < 1) {
     showError('Finished too quickly! Try again carefully.');
     resetTest();
     return;
@@ -154,27 +154,31 @@ function calculateScore() {
   let iq = 80 + Math.floor((total / 50) * 40);
   iq = Math.min(iq, 160);
   result = iq;
-  localStorage.setItem('iq_score', iq);
+  localStorage.setItem('iq', iq);
 
-  showResult();
+  saveresult();
 }
-
-function showResult() {
-  // If passed, redirect immediately
-  if (result >= 110) {
-    window.location.href = "success.html"; // Redirect without showing IQ
+const backendUrl="http://127.0.0.1:5000";
+async function  saveresult() {
+  // If passed, redirect immediately) 
+    try{
+      const response = await fetch(`${backendUrl}/saveresult`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          iq: iq
+        }),
+      });
+    }catch(err){
+      console.error('Error saving IQ score:', err);
+    }
+    window.location.href = `../dashboard/dashboard.html?username=${username}`; // Redirect without showing IQ
     return;
   }
 
-  // If failed, show IQ score
-  document.getElementById('question-area').style.display = 'none';
-  document.getElementById('options-container').style.display = 'none';
-  document.getElementById('question-counter').style.display = 'none';
-  document.getElementById('result-container').style.display = 'block';
-  document.getElementById('iq-score').innerText = result;
-
-  showError("You didn't meet the passing IQ score. Try again!");
-}
 
 function showError(msg) {
   const err = document.getElementById('error-message');
