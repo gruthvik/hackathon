@@ -35,6 +35,17 @@ class User(db.Model):
     lname = db.Column(db.String(20), nullable=True)
     about = db.Column(db.Text, nullable=True)
 
+class Session(db.Model):
+    __tablename__ = 'session'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), db.ForeignKey('user.username'), nullable=False)
+    sessionname = db.Column(db.String(100), nullable=False)
+    sessiontype = db.Column(db.String(20), nullable=False)
+    portion = db.Column(db.Text, nullable=True)
+    customnotes = db.Column(db.Text, nullable=True)
+    autonotes = db.Column(db.Text, nullable=True)
+    session_created_at = db.Column(db.DateTime(timezone=False), server_default=db.func.now())
+
 with app.app_context():
     db.create_all()
 @app.route("/register",methods=["POST"])
@@ -117,32 +128,48 @@ def session_static():
     return send_from_directory('session','script.js')
 @app.route("/upload", methods=["POST"])
 def upload_session():
-    file = request.files.get("file")
-    mode = request.form.get("mode")
-    if not file:
-        return jsonify({"error": "No file uploaded"}), 400
-    filename = file.filename.lower()
-    text_content = ""
     try:
-        if filename.endswith(".pdf"):
-            from PyPDF2 import PdfReader
-            reader = PdfReader(file)
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text_content += page_text + "\n"
-        elif filename.endswith(".docx"):
-            from docx import Document
-            doc = Document(file)
-            for para in doc.paragraphs:
-                text_content += para.text + "\n"
-        elif filename.endswith(".txt"):
-            text_content = file.read().decode("utf-8")
-        else:
-            return jsonify({"error": "Unsupported file type"}), 400
+        data = request.get_json()
+        print(data)
+        username = data.get("username")
+        sessionname = data.get("sessionname")
+        text = data.get("text", "")
+        sessiontype = data.get("mode")
+        
+        # Validation
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+        if not sessionname:
+            return jsonify({"error": "Session name is required"}), 400
+        if not sessiontype:
+            return jsonify({"error": "Mode is required"}), 400
+        
+        # Check if user exists
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        new_session = Session(
+            username=username,
+            sessionname=sessionname,
+            sessiontype=sessiontype,
+            portion=text if text else None
+        )
+        db.session.add(new_session)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Session created successfully",
+            "file_name": sessionname,
+            "mode": sessiontype
+        }), 201
+        
     except Exception as e:
+        db.session.rollback()
+        print(f"Database error: {str(e)}")
         return jsonify({"error": str(e)}), 500
-    return jsonify({"file_name": file.filename, "mode": mode, "content": text_content})
+
+
 
 # API route for Gemini response
 @app.route("/get_response", methods=["POST"])

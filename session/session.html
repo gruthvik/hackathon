@@ -28,16 +28,17 @@
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>Create New Study Session</h2>
-
+      <label for="sessionName">Session Name</label>
+      <input type="text" id="sessionName" placeholder="Enter session name" />
       <label for="studyMode">Study Mode</label>
       <select id="studyMode">
-        <option value="Speedrun">Speedrun</option>
-        <option value="Concise">Concise</option>
-        <option value="Detailed">Detailed</option>
+        <option value="speed run">Speedrun</option>
+        <option value="chill">Concise</option>
+        <option value="deep dive">Detailed</option>
       </select>
 
       <label for="pdfUpload">Upload Material (PDF/DOCX/TXT)</label>
-      <input type="file" id="pdfUpload" accept=".pdf,.docx,.txt" />
+      <input type="file" id="pdfUpload" accept=".pdf,.docx,.txt"  />
 
       <button id="createSession" class="btn-primary full">Create Session</button>
     </div>

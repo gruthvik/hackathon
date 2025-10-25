@@ -1,3 +1,6 @@
+const backendUrl="http://127.0.0.1:5000";
+const params = new URLSearchParams(window.location.search);
+const username = params.get("username");
 // ---------------------------
 // Elements
 // ---------------------------
@@ -49,18 +52,19 @@ renderSessions();
 // Handle new session creation
 // ---------------------------
 createBtn.onclick = async () => {
+  const sessionname = document.getElementById("sessionName").value.trim();
   const mode = document.getElementById("studyMode").value;
   const file = document.getElementById("pdfUpload").files[0];
-  if (!file) return alert("Please upload a file!");
+  // if (!file) return alert("Please upload a file!");
 
   try {
     // Read PDF as ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer();
 
+    if (file){
+      const arrayBuffer = await file.arrayBuffer();
     // Extract full text using pdf.js
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
-
     let fullText = "";
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
@@ -68,32 +72,36 @@ createBtn.onclick = async () => {
       const pageText = textContent.items.map(item => item.str).join(" ");
       fullText += pageText + "\n";
     }
+    }else{
+    pdf=null;
+    fullText="";
+  }
 
     // Send data to backend
-    const response = await fetch("http://127.0.0.1:5000/upload", {
+    const response = await fetch(`${backendUrl}/upload`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        username: username,
+        sessionname: sessionname,
         text: fullText,
-        mode,
-        file_name: file.name
+        mode: mode,
       })
     });
-
-    if (!response.ok) throw new Error("Upload failed");
+    
+    if (!response.ok) throw new Error("Upload failed or server error.");
     const result = await response.json();
-
+    
     // Update session list dynamically
     sessions.unshift({
       title: result.file_name || file.name.replace(/\.[^/.]+$/, ""),
       mode: result.mode || mode,
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
     });
 
     renderSessions();
     modal.style.display = "none";
     document.getElementById("pdfUpload").value = "";
-
+    window.location.href = `../chatbot/chatbot.html?username=${username}`;
   } catch (err) {
     console.error("❌ Error creating session:", err);
     alert("Failed to create session. Check console for details.");

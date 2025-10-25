@@ -177,7 +177,7 @@ async function  saveresult() {
     }catch(err){
       console.error('Error saving IQ score:', err);
     }
-    // window.location.href = `../dashboard/dashboard.html?username=${username}`; // Redirect without showing IQ
+    window.location.href = `../session/session.html?username=${username}` // Redirect without showing IQ
     return;
   }
 

@@ -26,7 +26,7 @@ document.getElementById("RegisterSubmit").addEventListener("click", async (e) =>
     });
     if (response.ok) {
         alert("User registered in!");
-        window.location.href = `../iqtest/IQTest.html?username=${username}`;
+        window.location.href = `../iqtest/IQTest.html?username=${data.username}`;
     }  
         const result = await response.json();
         alert(result.message);
