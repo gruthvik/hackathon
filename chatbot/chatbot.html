@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="chatbot.css">
+</head>
+<body>
+  <div id="messages"></div>
+  <input type="text" id="userInput" placeholder="Type your message..." />
+  <button id="sendButton">Send</button>
+  <button id="voiceInputButton">Speak</button>
+  <button id="viewNotesButton">View Notes</button>
+  <video id="webcam" width="0" height="0" autoplay></video>
+  <!-- <p id="emotion">Waiting for emotion detection...</p> -->
+  <label>
+    <input type="checkbox" id="speakToggle" checked />
+    Speak Bot Replies
+  </label>
+
+  <script src="chatbot.js"></script>
+</body>
+</html>
