@@ -22,6 +22,11 @@ document.getElementById("LoginSubmit").addEventListener("click",async ()=>{
         if (res.ok) {
             alert("User logged in!");
             console.log(data);
+            if (data.iq) {
+                window.location.href = `..dashboard/dashboard.html?username=${username}`;
+            }else{
+                window.location.href = `../iqtest/IQTest.html?username=${username}`;
+            }
         } else {
             alert("Error: " + data.message);
         }
