@@ -197,6 +197,7 @@ def get_sessions():
         return jsonify({"error": "Username is required"}), 400
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @app.route("/get_sessions", methods=["GET"])
 def get_sessions():
     print("Hello")
@@ -219,6 +220,7 @@ def get_sessions():
         for s in sessions
     ]
     return jsonify(data), 200
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 @app.route('/getchathistory', methods=['POST'])
