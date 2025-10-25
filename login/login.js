@@ -23,7 +23,7 @@ document.getElementById("LoginSubmit").addEventListener("click",async ()=>{
             alert("User logged in!");
             console.log(data);
             if (data.iq) {
-                window.location.href = `..dashboard/dashboard.html?username=${username}`;
+                window.location.href = `../session/session.html?username=${username}`;
             }else{
                 window.location.href = `../iqtest/IQTest.html?username=${username}`;
             }

@@ -24,6 +24,10 @@ document.getElementById("RegisterSubmit").addEventListener("click", async (e) =>
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
-    const result = await response.json();
-    alert(result.message);
+    if (response.ok) {
+        alert("User registered in!");
+        window.location.href = `../iqtest/IQTest.html?username=${username}`;
+    }  
+        const result = await response.json();
+        alert(result.message);
 });
