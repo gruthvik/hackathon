@@ -1,0 +1,229 @@
+/* -------- Reset -------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #ffffff;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------- Navbar -------- */
+.navbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #222;
+  letter-spacing: 0.5px;
+}
+
+.brand .dot {
+  color: #0077b6;
+}
+
+/* -------- Main Section -------- */
+.main {
+  flex: 1;
+  padding: 2rem 3rem;
+  text-align: center;
+}
+
+.create-container {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* -------- Section Title -------- */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #00b4d8;
+  margin: 0.4rem auto 0;
+  border-radius: 2px;
+}
+
+/* -------- Buttons -------- */
+.btn-primary {
+  background: linear-gradient(135deg, #00b4d8, #0096c7);
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 150, 199, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #0096c7, #0077b6);
+  box-shadow: 0 6px 15px rgba(0, 150, 199, 0.25);
+}
+
+.btn-primary.full {
+  width: 100%;
+  margin-top: 1.2rem;
+  padding: 0.9rem;
+}
+
+/* -------- Dropdown & File Upload -------- */
+label {
+  display: block;
+  margin-top: 1.2rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
+  text-align: left;
+}
+
+select,
+input[type="file"] {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+  color: #333;
+  font-size: 0.95rem;
+  transition: border-color 0.25s ease;
+  margin-top: 0.3rem;
+}
+
+select:focus,
+input[type="file"]:focus {
+  border-color: #00b4d8;
+  outline: none;
+}
+
+/* -------- Session Cards -------- */
+.session-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.session-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.session-card:hover {
+  transform: translateY(-6px);
+  border-color: #00b4d8;
+  box-shadow: 0 6px 15px rgba(0, 150, 199, 0.15);
+}
+
+.session-thumbnail {
+  height: 150px;
+  background-size: cover;
+  background-position: center;
+}
+
+.session-info {
+  padding: 1rem;
+}
+
+.session-info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.3rem;
+}
+
+.session-info p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* -------- Modal -------- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 360px;
+  color: #333;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #0077b6;
+}
+
+.close {
+  float: right;
+  font-size: 1.4rem;
+  color: #999;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close:hover {
+  color: #0077b6;
+}
+
+/* -------- Animations -------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* -------- Scrollbar -------- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
