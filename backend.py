@@ -190,14 +190,7 @@ def upload_session():
         db.session.rollback()
         print(f"Database error: {str(e)}")
         return jsonify({"error": str(e)}), 500
-@app.route("/get_sessions", methods=["GET"])
-def get_sessions():
-    username = request.args.get("username")
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 @app.route("/get_sessions", methods=["GET"])
 def get_sessions():
     print("Hello")
@@ -206,13 +199,6 @@ def get_sessions():
         return jsonify({"error": "Username is required"}), 400
 
     sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
-    print("sessions",sessions)
-=======
-    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
->>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
-=======
-    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
->>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
     data = [
         {
             "sessionname": s.sessionname,
@@ -223,8 +209,6 @@ def get_sessions():
         for s in sessions
     ]
     return jsonify(data), 200
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 @app.route('/getchathistory', methods=['POST'])
 def get_chat_history():
@@ -245,13 +229,6 @@ def get_chat_history():
 
 @app.route("/temp_get_response", methods=["POST"])
 def temp_get_response():
-=======
-=======
->>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
-# API route for Gemini response
-@app.route("/get_response", methods=["POST"])
-def get_response():
->>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
     try:
         data = request.get_json()
         user_message = data.get("message", "")
@@ -280,6 +257,38 @@ def get_response():
         return jsonify({"response": "No response from Gemini API"}), 500
     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
     return jsonify({"response": bot_message})
+
+# API route for Gemini response
+# @app.route("/get_response", methods=["POST"])
+# def get_response():
+#     try:
+#         data = request.get_json()
+#         user_message = data.get("message", "")
+        
+#         system_instruction = "You are a helpful assistant. Respond to the user's queries in a concise manner."
+#         response = requests.post(
+#             API_URL,
+#             headers={"Content-Type": "application/json"},
+#             json={
+#                 "system_instruction": {
+#                     "parts": [{"text": system_instruction}]
+#                 },
+#                 "contents": [
+#                     {
+#                         "role": "user",
+#                         "parts": [{"text": user_message}]
+#                     }
+#                 ]
+#             }
+#         )
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({"response": "Sorry, I'm having trouble responding."}), 500
+#     data = response.json()
+#     if not data.get("candidates"):
+#         return jsonify({"response": "No response from Gemini API"}), 500
+#     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
+#     return jsonify({"response": bot_message})
 
 
 # API route for Gemini response
