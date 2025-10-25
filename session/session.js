@@ -1,6 +1,8 @@
-const backendUrl="http://127.0.0.1:5000";
+const backendUrl = "http://127.0.0.1:5000";
 const params = new URLSearchParams(window.location.search);
 const username = params.get("username");
+const sessionname = params.get("sessionname");
+
 // ---------------------------
 // Elements
 // ---------------------------
@@ -10,14 +12,7 @@ const closeBtn = document.querySelector(".close");
 const createBtn = document.getElementById("createSession");
 const sessionList = document.getElementById("sessionList");
 
-// ---------------------------
-// Initial sample sessions
-// ---------------------------
-let sessions = [
-  { title: "AI Speedrun", mode: "Speedrun", thumbnail: "https://img.youtube.com/vi/Vy1JwiXHwI4/hqdefault.jpg" },
-  { title: "Operating Systems Normal", mode: "Normal", thumbnail: "https://img.youtube.com/vi/0NJDn0qzG3I/hqdefault.jpg" },
-  { title: "Data Science Detailed", mode: "Detailed", thumbnail: "https://img.youtube.com/vi/ua-CiDNNj30/hqdefault.jpg" }
-];
+let sessions = [];
 
 // ---------------------------
 // Open / Close Modal
@@ -41,12 +36,37 @@ function renderSessions() {
         <p>Mode: ${s.mode}</p>
       </div>
     `;
+    // Add click event to navigate to chatbot with session
+    card.onclick = () => {
+      window.location.href = `../chatbot/chatbot.html?username=${username}&sessionname=${encodeURIComponent(s.title)}`;
+    };
     sessionList.appendChild(card);
   });
 }
 
+
 // Initial render
-renderSessions();
+// renderSessions();
+
+async function loadSessions() {
+  try {
+    const response = await fetch(`${backendUrl}/get_sessions?username=${encodeURIComponent(username)}`);
+    if (!response.ok) throw new Error("Failed to fetch sessions");
+
+    const data = await response.json();
+    sessions = data.map(s => ({
+      title: s.sessionname,
+      mode: s.sessiontype,
+      portion: s.portion || "",
+      created_at: s.created_at
+    }));
+
+    renderSessions();
+  } catch (err) {
+    console.error("❌ Error fetching sessions:", err);
+  }
+}
+loadSessions();
 
 // ---------------------------
 // Handle new session creation
@@ -55,27 +75,29 @@ createBtn.onclick = async () => {
   const sessionname = document.getElementById("sessionName").value.trim();
   const mode = document.getElementById("studyMode").value;
   const file = document.getElementById("pdfUpload").files[0];
-  // if (!file) return alert("Please upload a file!");
+  
+  if (!sessionname) {
+    alert("Please enter a session name!");
+    return;
+  }
 
   try {
-    // Read PDF as ArrayBuffer
-
-    if (file){
-      const arrayBuffer = await file.arrayBuffer();
-    // Extract full text using pdf.js
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
     let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(" ");
-      fullText += pageText + "\n";
+    
+    // Read PDF if file is provided
+    if (file) {
+      const arrayBuffer = await file.arrayBuffer();
+      // Extract full text using pdf.js
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        fullText += pageText + "\n";
+      }
     }
-    }else{
-    pdf=null;
-    fullText="";
-  }
 
     // Send data to backend
     const response = await fetch(`${backendUrl}/upload`, {
@@ -89,21 +111,30 @@ createBtn.onclick = async () => {
       })
     });
     
-    if (!response.ok) throw new Error("Upload failed or server error.");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Upload failed");
+    }
+    
     const result = await response.json();
     
     // Update session list dynamically
     sessions.unshift({
-      title: result.file_name || file.name.replace(/\.[^/.]+$/, ""),
-      mode: result.mode || mode,
+      title: sessionname,
+      mode: mode,
+      thumbnail: "https://via.placeholder.com/300x180?text=New+Session"
     });
 
     renderSessions();
     modal.style.display = "none";
+    document.getElementById("sessionName").value = "";
     document.getElementById("pdfUpload").value = "";
-    window.location.href = `../chatbot/chatbot.html?username=${username}`;
+    
+    // Navigate to chatbot with new session
+    window.location.href = `../chatbot/chatbot.html?username=${username}&sessionname=${encodeURIComponent(sessionname)}`;
+    
   } catch (err) {
     console.error("❌ Error creating session:", err);
-    alert("Failed to create session. Check console for details.");
+    alert(`Failed to create session: ${err.message}`);
   }
 };

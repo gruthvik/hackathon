@@ -1,3 +1,8 @@
+const backendUrl="http://127.0.0.1:5000";
+const params = new URLSearchParams(window.location.search);
+const username = params.get("username");
+const sessionname = params.get("sessionname");
+
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("userInput");
   const sendButton = document.getElementById("sendButton");
@@ -6,6 +11,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const speakToggle = document.getElementById("speakToggle");
   const viewNotesButton = document.getElementById("viewNotesButton");
   viewNotesButton.addEventListener("click", handleViewNotes);
+
+  let chat={};
+  chat=getchathistory();
+  async function getchathistory(){
+    try{
+      const response = await fetch(`${backendUrl}/getchathistory`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          sessionname: sessionname
+        }),
+      });
+      const data = await response.json();
+      if (data.history && Array.isArray(data.history)) {
+        data.history.forEach(entry => {
+          messagesDiv.innerHTML += `<div><b>${entry.sender}:</b> ${entry.message}</div>`;
+        });
+        return data.history;
+      }
+    }catch(err){
+      console.error('Error fetching chat history:', err);
+    }
+  }
+
+
 
 
   sendButton.addEventListener("click", sendMessage);
@@ -162,10 +195,10 @@ document.addEventListener("DOMContentLoaded", () => {
     modalInput.value = "";
 
     try {
-      const response = await fetch("/get_response", {
+      const response = await fetch(`${backendUrl}/temp_get_response`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, username: username,sessionname: sessionname }),
       });
 
       const data = await response.json();
@@ -222,10 +255,14 @@ document.addEventListener("DOMContentLoaded", () => {
     input.value = "";
 
     try {
-      const response = await fetch("/get_response", {
+      const response = await fetch(`${backendUrl}/get_response`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+          username: username,
+          sessionname: sessionname
+         }),
       });
 
       const data = await response.json();
@@ -287,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
       context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
       const imageData = canvas.toDataURL('image/jpeg');
 
-      fetch('http://127.0.0.1:5000/analyze_emotion', {
+      fetch(`${backendUrl}/analyze_emotion`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'

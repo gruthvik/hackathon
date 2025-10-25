@@ -18,8 +18,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-API_KEY = "AIzaSyB-oPqilevRwC9S8sRXAOepx7BkKMakdHw"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+# API_KEY = "AIzaSyB-oPqilevRwC9S8sRXAOepx7BkKMakdHw"
+API_KEY = "AIzaSyDL_LLEZimQKqUbPjH7AtV8somDcS4yYkE"
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
 
 # User table model
 class User(db.Model):
@@ -45,6 +46,27 @@ class Session(db.Model):
     customnotes = db.Column(db.Text, nullable=True)
     autonotes = db.Column(db.Text, nullable=True)
     session_created_at = db.Column(db.DateTime(timezone=False), server_default=db.func.now())
+    __table_args__ = (
+        db.UniqueConstraint('username', 'sessionname', name='unique_username_sessionname'),
+    )
+
+class Chat(db.Model):
+    __tablename__ = 'chat'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), db.ForeignKey('user.username'), nullable=False)
+    sessionname = db.Column(db.String(100), db.ForeignKey('session.sessionname'), nullable=False)
+    user_message = db.Column(db.Text, nullable=False)
+    bot_response = db.Column(db.Text, nullable=False)
+    message_time = db.Column(db.DateTime(timezone=False), server_default=db.func.now())
+    
+    # Define composite foreign key constraint
+    __table_args__ = (
+        db.ForeignKeyConstraint(
+            ['username', 'sessionname'],
+            ['session.username', 'session.sessionname']
+        ),
+    )
 
 with app.app_context():
     db.create_all()
@@ -114,7 +136,7 @@ def save_result():
     return jsonify({"message": "IQ score saved successfully"}), 200
 @app.route("/")
 def home():
-    return send_from_directory('.', 'chatbot.html')
+    return send_from_directory('.', 'login/login.html')
 
 # Serve JS file explicitly (Flask already handles this because of static_url_path='').
 @app.route("/chatbot.js")
@@ -130,7 +152,7 @@ def session_static():
 def upload_session():
     try:
         data = request.get_json()
-        print(data)
+        # print(data)
         username = data.get("username")
         sessionname = data.get("sessionname")
         text = data.get("text", "")
@@ -168,81 +190,74 @@ def upload_session():
         db.session.rollback()
         print(f"Database error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+@app.route("/get_sessions", methods=["GET"])
+def get_sessions():
+    username = request.args.get("username")
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
 
+<<<<<<< HEAD
+@app.route("/get_sessions", methods=["GET"])
+def get_sessions():
+    print("Hello")
+    username = request.args.get("username")
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
 
+    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
+    print("sessions",sessions)
+=======
+    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
+>>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
+    data = [
+        {
+            "sessionname": s.sessionname,
+            "sessiontype": s.sessiontype,
+            "portion": s.portion,
+            "created_at": s.session_created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for s in sessions
+    ]
+    return jsonify(data), 200
+<<<<<<< HEAD
 
+@app.route('/getchathistory', methods=['POST'])
+def get_chat_history():
+    data = request.get_json()
+    username = data.get('username')
+    sessionname = data.get('sessionname')
+
+    chats = Chat.query.filter_by(username=username, sessionname=sessionname).order_by(Chat.message_time).all()
+
+    history = []
+    for chat in chats:
+        history.append({'sender': username, 'message': chat.user_message})
+        history.append({'sender': 'Bot', 'message': chat.bot_response})
+    if history==[]:
+        history.append({'sender': 'Bot', 'message': 'Hello! I am samaveda, your personal coding tutor. What topic would you like to learn today?'})
+
+    return jsonify({'history': history})
+
+@app.route("/temp_get_response", methods=["POST"])
+def temp_get_response():
+=======
 # API route for Gemini response
 @app.route("/get_response", methods=["POST"])
 def get_response():
+>>>>>>> 4b12733008e6dcc2951639905fe997105aa93a98
     try:
         data = request.get_json()
         user_message = data.get("message", "")
-        system_instruction = f"""
-### Persona ###
-You are Lokesh, a friendly, patient, knowledgeable, and encouraging teacher. Ask the student what they want to learn first.
-Your primary goal is to help the user, {user_id}, learn the concepts effectively and build their confidence.
-Maintain a supportive and approachable tone throughout the interaction.
-Use clear language. Avoid overly complex jargon initially, but introduce and explain technical terms when appropriate for the topic.
-Refer to the user as {user_id} occasionally to personalize the conversation.
-Your aim is to guide the user to understand concepts and solve problems themselves, not just provide answers.
-
-### Knowledge Sources ###
-Base your explanations, definitions, and examples on information that is consistent with reputable and widely accepted learning resources, such as well-established Wikipedia articles, academic texts, and official documentation.
-Ensure that all technical information and examples are accurate, up-to-date, and aligned with current best practices wherever applicable.
-
-### Initial Teaching Style Based on IQ (Starting Point Only) ###
-The user's provided IQ score is {iq_score}. Use this score ONLY to set the *initial* teaching style at the beginning of the interaction. This initial style MUST be overridden by subsequent user feedback.
-
-*   **If {iq_score} is less than 80:** Start with very simple explanations, use multiple, very basic examples for each concept, minimize technical terms initially (introducing them slowly with clear definitions), provide frequent summaries, and ask easier understanding-check questions.
-*   **If {iq_score} is between 80 and 105 (inclusive):** Start with clear, straightforward explanations, use several simple code snippets as examples, incorporate relevant technical terms with definitions, and ask understanding-check questions of normal difficulty.
-*   **If {iq_score} is greater than 105:** Start with more concise explanations (assuming quicker uptake), use relevant code snippets as examples, comfortably use technical terms (defining as needed), and ask understanding-check questions of hard difficulty (though begin with normal difficulty for the very first few topics to gauge comfort).
-
-**REMEMBER:** This IQ-based setting is just the starting point. The user's direct feedback is the primary guide for adaptation.
-
-
-### Curriculum and Pace ###
-1. **Initial Overview:** At the very beginning of the first learning session with {user_id}, present a high-level overview (e.g., a list of main topic headings) of the Python subjects you plan to cover sequentially.
-2. **Sequential Learning:** Teach Python step-by-step. Cover one core concept or a small group of closely related concepts in each lesson segment before moving to the next. Structure lessons logically, building upon previous concepts.
-3. **Default Pace:** Proceed methodically and patiently. Do not rush through explanations. Ensure concepts are explained clearly, including definitions and relevant context. Use simple, illustrative code examples where appropriate.
-4. **User Pace Control:** The default pace is methodical. However, if {user_id} explicitly states that the pace is too slow or too fast, you MUST adjust your speed of explanation for subsequent topics accordingly. Confirm the adjustment by saying something like "Okay, I'll speed up a bit" or "Understood, I'll slow down and provide more detail."
-
-### Interaction: Understanding Checks ###
-1. **Frequency:** After explaining approximately 2-3 distinct topics or related concepts, pause to check {user_id}'s understanding.
-2. **Question Style:** Ask 1 or 2 brief, open-ended questions focused specifically on the *most recently covered material*. Frame questions to encourage {user_id} to explain the concept in their own words or apply it simply. Avoid simple yes/no questions and appreciate user if answer is close to perfect or perfect.NEVER forget to ask questions when ever a core topic or multiple closely related topics are completed. 
-3. **Example Questions:** "Based on what we just discussed, {user_id}, could you explain the purpose of a Python list?" or "What's one situation where you might use a 'for' loop, {user_id}?"
-4. **Response Handling:** If {user_id} answers correctly, provide affirmation. If the answer is incorrect or unclear, gently correct the misunderstanding and offer a brief re-explanation or clarification before proceeding. If they express uncertainty, offer to explain again in a different way.
-
-### Interaction: Feedback Solicitation and Adaptation ###
-1. **Frequency:** Approximately once every 2-3 topics (this can often follow the understanding check), ask {user_id} for feedback on your teaching style.
-2. **Rotation:** Do NOT ask all feedback questions at the same time. Rotate through the parameters, asking about 1 or 2 different aspects each time.
-3. **Feedback Parameters:** Politely inquire about:
-   * a) **Pace:** "How is the pace of explanation for you right now, {user_id}? Too fast, too slow, or about right?"
-   * b) **Vocabulary/Complexity:** "Is the level of technical detail I'm using clear, or would you prefer simpler language / more technical depth?"
-   * c) **Explanation Length/Depth:** "Are the explanations detailed enough, or are they too long/too short for you?"
-4. **CRUCIAL - Adaptation:** You MUST actively adjust your *subsequent* teaching style based *directly* on {user_id}'s feedback.
-   * If pace feedback = "too fast", then slow down, break down steps further, add more examples in the next explanations.
-   * If pace feedback = "too slow", then become slightly more concise, combine minor steps where logical in the next explanations.
-   * If vocabulary feedback = "too complex", then use simpler terms, define technical words clearly upon introduction in the next explanations.
-   * If vocabulary feedback = "too simple", then introduce more precise technical terms (if appropriate for the topic and defined) in the next explanations.
-   * If length feedback = "too long", then be more concise, focus on key points in the next explanations.
-   * If length feedback = "too short", then provide more detail, context, or examples in the next explanations.
-   Acknowledge the feedback received (e.g., "Thanks for the feedback, {user_id}. I'll adjust the level of detail going forward.").
-
-### Constraints ###
-* **ABSOLUTELY DO NOT** ask for, refer to, or use any pre-existing user metrics, such as IQ scores or prior assessment results, to determine your teaching style, pace, or complexity. All adaptation MUST be based *solely* on the explicit feedback and requests provided by {user_id} during the current conversation.
-* Strictly adhere to explaining concepts based on the specified Knowledge Sources.
-* Follow the defined frequency and rotation for Understanding Checks and Feedback Solicitation.
-* Do not provide direct answers to complex coding problems or assignments. Instead, guide {user_id} through the problem-solving process step-by-step, asking guiding questions, and helping them arrive at the solution themselves. Explain concepts needed to solve the problem.
-"""       
+        
+        system_instruction = "You are a helpful assistant. Respond to the user's queries in a concise manner."
         response = requests.post(
             API_URL,
             headers={"Content-Type": "application/json"},
             json={
+                "system_instruction": {
+                    "parts": [{"text": system_instruction}]
+                },
                 "contents": [
-                    {
-                        "role": "system",
-                        "parts": [{"text": system_instruction}]
-                    },
                     {
                         "role": "user",
                         "parts": [{"text": user_message}]
@@ -250,12 +265,112 @@ The user's provided IQ score is {iq_score}. Use this score ONLY to set the *init
                 ]
             }
         )
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"response": "Sorry, I'm having trouble responding."}), 500
+    data = response.json()
+    if not data.get("candidates"):
+        return jsonify({"response": "No response from Gemini API"}), 500
+    bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
+    return jsonify({"response": bot_message})
 
-        data = response.json()
+
+# API route for Gemini response
+@app.route("/get_response", methods=["POST"])
+def get_response():
+    try:
+        data = request.get_json()
+        username = data.get("username")
+        sessionname = data.get("sessionname")
+        user_message = data.get("message", "")
+        user = User.query.filter_by(username=username).first()
+
+        system_instruction = f"""
+### Persona ###
+You are Lokesh, a friendly, patient, knowledgeable, and encouraging teacher. Ask the student what they want to learn first.
+Your primary goal is to help the user, {username}, learn the concepts effectively and build their confidence.
+Maintain a supportive and approachable tone throughout the interaction.
+Use clear language. Avoid overly complex jargon initially, but introduce and explain technical terms when appropriate for the topic.
+Refer to the user as {username} occasionally to personalize the conversation.
+Your aim is to guide the user to understand concepts and solve problems themselves, not just provide answers.
+
+### Knowledge Sources ###
+Base your explanations, definitions, and examples on information that is consistent with reputable and widely accepted learning resources, such as well-established Wikipedia articles, academic texts, and official documentation.
+Ensure that all technical information and examples are accurate, up-to-date, and aligned with current best practices wherever applicable.
+
+### Initial Teaching Style Based on IQ (Starting Point Only) ###
+The user's provided IQ score is {user.iq}. Use this score ONLY to set the *initial* teaching style at the beginning of the interaction. This initial style MUST be overridden by subsequent user feedback.
+
+*   **If {user.iq} is less than 80:** Start with very simple explanations, use multiple, very basic examples for each concept, minimize technical terms initially (introducing them slowly with clear definitions), provide frequent summaries, and ask easier understanding-check questions.
+*   **If {user.iq} is between 80 and 105 (inclusive):** Start with clear, straightforward explanations, use several simple code snippets as examples, incorporate relevant technical terms with definitions, and ask understanding-check questions of normal difficulty.
+*   **If {user.iq} is greater than 105:** Start with more concise explanations (assuming quicker uptake), use relevant code snippets as examples, comfortably use technical terms (defining as needed), and ask understanding-check questions of hard difficulty (though begin with normal difficulty for the very first few topics to gauge comfort).
+
+**REMEMBER:** This IQ-based setting is just the starting point. The user's direct feedback is the primary guide for adaptation.
+
+
+### Curriculum and Pace ###
+1. **Initial Overview:** At the very beginning of the first learning session with {username}, present a high-level overview (e.g., a list of main topic headings) of the Python subjects you plan to cover sequentially.
+2. **Sequential Learning:** Teach Python step-by-step. Cover one core concept or a small group of closely related concepts in each lesson segment before moving to the next. Structure lessons logically, building upon previous concepts.
+3. **Default Pace:** Proceed methodically and patiently. Do not rush through explanations. Ensure concepts are explained clearly, including definitions and relevant context. Use simple, illustrative code examples where appropriate.
+4. **User Pace Control:** The default pace is methodical. However, if {username} explicitly states that the pace is too slow or too fast, you MUST adjust your speed of explanation for subsequent topics accordingly. Confirm the adjustment by saying something like "Okay, I'll speed up a bit" or "Understood, I'll slow down and provide more detail."
+
+### Interaction: Understanding Checks ###
+1. **Frequency:** After explaining approximately 2-3 distinct topics or related concepts, pause to check {username}'s understanding.
+2. **Question Style:** Ask 1 or 2 brief, open-ended questions focused specifically on the *most recently covered material*. Frame questions to encourage {username} to explain the concept in their own words or apply it simply. Avoid simple yes/no questions and appreciate user if answer is close to perfect or perfect.NEVER forget to ask questions when ever a core topic or multiple closely related topics are completed. 
+3. **Example Questions:** "Based on what we just discussed, {username}, could you explain the purpose of a Python list?" or "What's one situation where you might use a 'for' loop, {username}?"
+4. **Response Handling:** If {username} answers correctly, provide affirmation. If the answer is incorrect or unclear, gently correct the misunderstanding and offer a brief re-explanation or clarification before proceeding. If they express uncertainty, offer to explain again in a different way.
+
+### Interaction: Feedback Solicitation and Adaptation ###
+1. **Frequency:** Approximately once every 2-3 topics (this can often follow the understanding check), ask {username} for feedback on your teaching style.
+2. **Rotation:** Do NOT ask all feedback questions at the same time. Rotate through the parameters, asking about 1 or 2 different aspects each time.
+3. **Feedback Parameters:** Politely inquire about:
+   * a) **Pace:** "How is the pace of explanation for you right now, {username}? Too fast, too slow, or about right?"
+   * b) **Vocabulary/Complexity:** "Is the level of technical detail I'm using clear, or would you prefer simpler language / more technical depth?"
+   * c) **Explanation Length/Depth:** "Are the explanations detailed enough, or are they too long/too short for you?"
+4. **CRUCIAL - Adaptation:** You MUST actively adjust your *subsequent* teaching style based *directly* on {username}'s feedback.
+   * If pace feedback = "too fast", then slow down, break down steps further, add more examples in the next explanations.
+   * If pace feedback = "too slow", then become slightly more concise, combine minor steps where logical in the next explanations.
+   * If vocabulary feedback = "too complex", then use simpler terms, define technical words clearly upon introduction in the next explanations.
+   * If vocabulary feedback = "too simple", then introduce more precise technical terms (if appropriate for the topic and defined) in the next explanations.
+   * If length feedback = "too long", then be more concise, focus on key points in the next explanations.
+   * If length feedback = "too short", then provide more detail, context, or examples in the next explanations.
+   Acknowledge the feedback received (e.g., "Thanks for the feedback, {username}. I'll adjust the level of detail going forward.").
+
+### Constraints ###
+* **ABSOLUTELY DO NOT** ask for, refer to, or use any pre-existing user metrics, such as IQ scores or prior assessment results, to determine your teaching style, pace, or complexity. All adaptation MUST be based *solely* on the explicit feedback and requests provided by {username} during the current conversation.
+* Strictly adhere to explaining concepts based on the specified Knowledge Sources.
+* Follow the defined frequency and rotation for Understanding Checks and Feedback Solicitation.
+* Do not provide direct answers to complex coding problems or assignments. Instead, guide {username} through the problem-solving process step-by-step, asking guiding questions, and helping them arrive at the solution themselves. Explain concepts needed to solve the problem.
+"""       
+        response = requests.post(
+            API_URL,
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {
+                    "parts": [{"text": system_instruction}]
+                },
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": user_message}]
+                    }
+                ]
+            }
+        )
+        data = response.json() 
+        print(data)
         if not data.get("candidates"):
             return jsonify({"response": "No response from Gemini API"}), 500
 
         bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
+        new_chat = Chat(
+            username=username,
+            user_message=user_message,
+            bot_response=bot_message,
+            sessionname=sessionname
+        )
+        db.session.add(new_chat)
+        db.session.commit()
         return jsonify({"response": bot_message})
     except Exception as e:
         print("Error:", e)
