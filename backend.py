@@ -168,9 +168,23 @@ def upload_session():
         db.session.rollback()
         print(f"Database error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+@app.route("/get_sessions", methods=["GET"])
+def get_sessions():
+    username = request.args.get("username")
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
 
-
-
+    sessions = Session.query.filter_by(username=username).order_by(Session.session_created_at.desc()).all()
+    data = [
+        {
+            "sessionname": s.sessionname,
+            "sessiontype": s.sessiontype,
+            "portion": s.portion,
+            "created_at": s.session_created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for s in sessions
+    ]
+    return jsonify(data), 200
 # API route for Gemini response
 @app.route("/get_response", methods=["POST"])
 def get_response():
