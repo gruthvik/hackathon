@@ -1,5 +1,6 @@
 const backendUrl="http://127.0.0.1:5000";
-document.getElementById("RegisterSubmit").addEventListener("click", async () => {
+document.getElementById("RegisterSubmit").addEventListener("click", async (e) => {
+    e.preventDefault();
     const data = {
         first_name: document.getElementById("first_name").value,
         last_name: document.getElementById("last_name").value,
@@ -18,11 +19,11 @@ document.getElementById("RegisterSubmit").addEventListener("click", async () => 
     }
 
     // Send data to Flask backend
-    // const response = await fetch(`${backendUrl}/register`, {
-    //     method: "POST",
-    //     headers: {"Content-Type": "application/json"},
-    //     body: JSON.stringify(data)
-    // });
-    // const result = await response.json();
-    // alert(result.message);
+    const response = await fetch(`${backendUrl}/register`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    alert(result.message);
 });
