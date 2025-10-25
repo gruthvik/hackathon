@@ -91,6 +91,40 @@ def home():
 @app.route("/chatbot.js")
 def serve_js():
     return send_from_directory('.', 'chatbot.js')
+@app.route("/session")
+def session_page():
+    return send_from_directory('session', 'index.html')
+@app.route("/session/script.js")
+def session_static():
+    return send_from_directory('session','script.js')
+@app.route("/upload", methods=["POST"])
+def upload_session():
+    file = request.files.get("file")
+    mode = request.form.get("mode")
+    if not file:
+        return jsonify({"error": "No file uploaded"}), 400
+    filename = file.filename.lower()
+    text_content = ""
+    try:
+        if filename.endswith(".pdf"):
+            from PyPDF2 import PdfReader
+            reader = PdfReader(file)
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_content += page_text + "\n"
+        elif filename.endswith(".docx"):
+            from docx import Document
+            doc = Document(file)
+            for para in doc.paragraphs:
+                text_content += para.text + "\n"
+        elif filename.endswith(".txt"):
+            text_content = file.read().decode("utf-8")
+        else:
+            return jsonify({"error": "Unsupported file type"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    return jsonify({"file_name": file.filename, "mode": mode, "content": text_content})
 
 # API route for Gemini response
 @app.route("/get_response", methods=["POST"])

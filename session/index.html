@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samaveda Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.209/pdf.min.js"></script>
+</head>
+<body>
+  <header class="navbar">
+    <h1 class="brand">Samaveda<span class="dot">.</span></h1>
+  </header>
+
+  <main class="main">
+    <div class="create-container">
+      <button id="newSessionBtn" class="btn-primary">+ Create New Session</button>
+    </div>
+
+    <!-- New Heading -->
+    <h2 class="section-title">Existing Sessions</h2>
+
+    <section id="sessionList" class="session-grid"></section>
+  </main>
+
+  <!-- Modal -->
+  <div id="sessionModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Create New Study Session</h2>
+
+      <label for="studyMode">Study Mode</label>
+      <select id="studyMode">
+        <option value="Speedrun">Speedrun</option>
+        <option value="Concise">Concise</option>
+        <option value="Detailed">Detailed</option>
+      </select>
+
+      <label for="pdfUpload">Upload Material (PDF/DOCX/TXT)</label>
+      <input type="file" id="pdfUpload" accept=".pdf,.docx,.txt" />
+
+      <button id="createSession" class="btn-primary full">Create Session</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
