@@ -2,43 +2,413 @@
 <html>
 <head>
     <title>Registration Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            animation: backgroundShift 10s ease-in-out infinite alternate;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        @keyframes backgroundShift {
+            0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+            100% { background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%); }
+        }
+
+        .form-container {
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            color: #333;
+            animation: fadeInUp 0.8s ease-out;
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, #667eea, #764ba2, #f093fb) 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            color: #333;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        input, select, button {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            width: 100%;
+            background: #fff;
+        }
+
+        input:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            transform: scale(1.02);
+            outline: none;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within label {
+            color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Loading state */
+        button.loading {
+            pointer-events: none;
+        }
+
+        button.loading::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 3px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Smooth floating labels */
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group select:focus + label {
+            top: -10px;
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            color: #666;
+            font-size: 14px;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Enhanced form styling */
+        .form-group input, .form-group select {
+            background: #fff;
+            color: #333;
+        }
+
+        .form-group input::placeholder, .form-group select::placeholder {
+            color: #999;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            background: #fff;
+            outline: none;
+        }
+
+        /* Custom select styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Success and error states */
+        .form-group.success input, .form-group.success select {
+            border-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .form-group.error input, .form-group.error select {
+            border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Enhanced button states */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Responsive design improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .form-container {
+                padding: 30px 25px;
+                max-width: 100%;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 25px 20px;
+            }
+            
+            input, select, button {
+                padding: 10px 12px;
+            }
+        }
+
+        /* Accessibility improvements */
+        input:focus, select:focus, button:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition: all 0.3s ease;
+        }
+
+        /* Login link hover effect */
+        a:hover {
+            color: #764ba2 !important;
+            text-decoration: underline !important;
+        }
+
+        /* Enhanced form group interactions */
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-group:hover input,
+        .form-group:hover select {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        /* Success message styling */
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Error message styling */
+        .error-message {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideDown 0.5s ease;
+        }
+
+        /* Form validation styling */
+        .form-group.valid input,
+        .form-group.valid select {
+            border-color: #10b981;
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        }
+
+        .form-group.invalid input,
+        .form-group.invalid select {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+        }
+    </style>
 </head>
 <body>
-    <h2>Register</h2>
+    <div class="form-container">
+        <div class="logo">
+            <i class="fas fa-user-plus text-white fs-3"></i>
+        </div>
+        <h2>Create Account</h2>
+        <p class="subtitle">Join us and start your journey</p>
+        
+        <div class="form-group">
+            <input type="text" id="first_name" name="first_name" placeholder=" " required>
+            <label for="first_name">First Name</label>
+        </div>
 
-     <label for="first_name">First Name:</label>
-    <input type="text" id="first_name" name="first_name" required><br><br>
+        <div class="form-group">
+            <input type="text" id="last_name" name="last_name" placeholder=" ">
+            <label for="last_name">Last Name</label>
+        </div>
 
-    <label for="last_name">Last Name:</label>
-    <input type="text" id="last_name" name="last_name"><br><br>
+        <div class="form-group">
+            <input type="date" id="dob" name="dob" placeholder=" " required>
+            <label for="dob">Date of Birth</label>
+        </div>
 
-    <label for="dob">DOB:</label>
-    <input type="date" id="dob" name="dob" required><br><br>
+        <div class="form-group">
+            <input type="text" id="username" name="username" placeholder=" " required>
+            <label for="username">Username</label>
+        </div>
 
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required><br><br>
+        <div class="form-group">
+            <input type="password" id="password" name="password" placeholder=" " required>
+            <label for="password">Password</label>
+        </div>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required><br><br>
+        <div class="form-group">
+            <input type="password" id="confirm_password" name="confirm_password" placeholder=" " required>
+            <label for="confirm_password">Confirm Password</label>
+        </div>
 
-    <label for="confirm_password">Confirm Password:</label>
-    <input type="password" id="confirm_password" name="confirm_password" required><br><br>
+        <div class="form-group">
+            <input type="number" id="age" name="age" placeholder=" " required>
+            <label for="age">Age</label>
+        </div>
 
-    <label for="age">Age:</label>
-    <input type="number" id="age" name="age" required><br><br>
+        <div class="form-group">
+            <select id="sex" name="sex" required>
+                <option value="" hidden></option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <label for="sex">Sex</label>
+        </div>
 
-    <label for="sex">Sex:</label>
-    <select id="sex" name="sex" required>
-        <option value="">Select...</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-    </select><br><br>
+        <div class="form-group">
+            <input type="text" id="occupation" name="occupation" placeholder=" " required>
+            <label for="occupation">Occupation</label>
+        </div>
 
-    <label for="occupation">Occupation:</label>
-    <input type="text" id="occupation" name="occupation" required><br><br>
-
-    <button type="submit" id = "RegisterSubmit">Submit</button>
+        <button type="submit" id="RegisterSubmit"><i class="fa-solid fa-paper-plane me-2"></i>Create Account</button>
+        
+        <div class="text-center mt-4">
+            <span class="text-muted">Already have an account? </span>
+            <a href="../login/login.html" class="fw-semibold" style="color: #667eea; text-decoration: none; transition: color 0.3s ease;">Sign In</a>
+        </div>
+    </div>
 
     <script src="register.js"></script>
 </body>
