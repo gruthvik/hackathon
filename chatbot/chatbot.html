@@ -16,8 +16,8 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       animation: gradientShift 10s ease-in-out infinite alternate;
-      color: white;
-      overflow: hidden;
+      color: black;
+      overflow: auto;
     }
 
     @keyframes gradientShift {
@@ -209,6 +209,7 @@
     <input type="text" id="userInput" placeholder="Type your message..." />
     <button id="sendButton"><i class="fa-solid fa-paper-plane"></i></button>
     <button id="voiceInputButton"><i class="fa-solid fa-microphone"></i></button>
+    <button id="progressButton"><span class="spinner"></span> Progress</button>
     <button id="viewNotesButton"><i class="fa-solid fa-book"></i></button>
     <button id="youtubereference"><i class="fa-brands fa-youtube"></i></button>
   </div>

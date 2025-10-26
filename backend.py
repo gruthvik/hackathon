@@ -9,6 +9,19 @@ import base64
 import numpy as np
 from PIL import Image
 
+import google.generativeai as genai
+
+# --- Configure Gemini ---
+genai.configure(api_key="AIzaSyDL_LLEZimQKqUbPjH7AtV8somDcS4yYkE")
+
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+}
+
 # app = Flask(__name__)
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -209,12 +222,13 @@ def get_sessions():
         for s in sessions
     ]
     return jsonify(data), 200
-@app.route("/get_portion_by_session", methods=["GET"])
+@app.route("/get_portion_by_session", methods=["POST"])
 def get_portion_by_session():
     import re, json
+    data = request.get_json() or {}
 
-    username = request.args.get("username")
-    sessionname = request.args.get("sessionname")
+    username = data.get("username")
+    sessionname = data.get("sessionname")
 
     if not username or not sessionname:
         return jsonify({"error": "Username and sessionname are required"}), 400
@@ -243,7 +257,6 @@ def get_portion_by_session():
     if json_block:
         return jsonify({"portion": json_block}), 200
     else:
-        # If no JSON found, send raw text
         return jsonify({"portion": portion_data}), 200
 
     
@@ -296,40 +309,42 @@ def temp_get_response():
     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
     return jsonify({"response": bot_message})
 
-# API route for Gemini response
-# @app.route("/get_response", methods=["POST"])
-# def get_response():
-#     try:
-#         data = request.get_json()
-#         user_message = data.get("message", "")
+@app.route("/extract_keywords", methods=["POST"])
+def extract_keywords():
+    data = request.get_json()
+    text = data.get("text", "")
+
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    # Construct a clear instruction
+    system_ins = "Explain the following concept in one concise sentence.only describe in 5 words thats all"
+
+    # Example using your OpenAI or model call
+    response = requests.post(
+            API_URL,
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {
+                    "parts": [{"text": system_ins}]
+                },
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": text}]
+                    }
+                ]
+            }
+        )  # <-- your function that queries GPT / LLM
+    data = response.json() 
         
-#         system_instruction = "You are a helpful assistant. Respond to the user's queries in a concise manner."
-#         response = requests.post(
-#             API_URL,
-#             headers={"Content-Type": "application/json"},
-#             json={
-#                 "system_instruction": {
-#                     "parts": [{"text": system_instruction}]
-#                 },
-#                 "contents": [
-#                     {
-#                         "role": "user",
-#                         "parts": [{"text": user_message}]
-#                     }
-#                 ]
-#             }
-#         )
-#     except Exception as e:
-#         print("Error:", e)
-#         return jsonify({"response": "Sorry, I'm having trouble responding."}), 500
-#     data = response.json()
-#     if not data.get("candidates"):
-#         return jsonify({"response": "No response from Gemini API"}), 500
-#     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
-#     return jsonify({"response": bot_message})
+    if not data.get("candidates"):
+        return jsonify({"response": "No query from Gemini API"}), 500
 
+    finalquery = data["candidates"][0]["content"]["parts"][0]["text"]
 
-# API route for Gemini response
+    return jsonify({"final": finalquery})
+
 @app.route("/get_response", methods=["POST"])
 def get_response():
     try:
@@ -338,6 +353,8 @@ def get_response():
         sessionname = data.get("sessionname")
         user_message = data.get("message", "")
         user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"response": "User not found"}), 404 
 
 #         system_instruction = f"""
 # ###Persona###
@@ -615,7 +632,7 @@ Maintain a supportive, patient, and approachable tone.
         if not data.get("candidates"):
             return jsonify({"response": "No response from Gemini API"}), 500
 
-        bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
+        bot_message = data["candidates"][0]["content"]["parts"][0]["text"].strip()
         new_chat = Chat(
             username=username,
             user_message=user_message,
@@ -624,6 +641,34 @@ Maintain a supportive, patient, and approachable tone.
         )
         db.session.add(new_chat)
         db.session.commit()
+        # if bot_message.lower().strip() == "portion created":
+        if bot_message.lower().startswith("portion created"):
+            session_record = Session.query.filter_by(username=username, sessionname=sessionname).first()
+            if session_record:
+                # Update the portion field with bot message (or structured portion if you have it)
+                session_record.portion = bot_message[2:]
+                db.session.commit()
+
+            # last_bot = (
+            #     Chat.query.filter_by(username=username, sessionname=sessionname)
+            #     .order_by(Chat.id.desc())
+            #     .offset(1)  # skip the current message
+            #     .first()
+            # )
+            # if last_bot:
+            #     portion_candidate = last_bot.bot_response.strip()
+            #     try:
+            #         import json
+            #         portion_json = json.loads(portion_candidate)
+            #         # Save to DB
+            #         session = Session.query.filter_by(username=username, sessionname=sessionname).first()
+            #         if session:
+            #             session.portion = json.dumps(portion_json)
+            #             db.session.commit()
+            #             print(f"✅ Portion saved to DB for {username}-{sessionname}")
+            #     except Exception as e:
+            #         print(f"⚠️ Failed to parse portion JSON: {e}")
+            
         return jsonify({"response": bot_message})
     except Exception as e:
         print("Error:", e)
@@ -652,6 +697,104 @@ def analyze():
     emotion = analyze_emotion(image)
     return jsonify({'emotion': emotion})
 
+model = genai.GenerativeModel(
+    model_name="gemini-2.0-flash",
+    generation_config=generation_config,
+)
+
+@app.route('/extract-concept', methods=['POST'])
+def extract_concept():
+    """
+    This route receives a query (text), extracts the main concept in ≤5 words using Gemini.
+    Example: "Explain how neural networks work" → "Neural networks basics"
+    """
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'error': 'Missing text'}), 400
+
+        system_instruction = (
+            "You are a YouTube query producer. When someone sends you a query, "
+            "understand it and MENTION only the core concept of the entire query — "
+            "in not more than 5 words. Nothing else."
+        )
+
+        dynamic_model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            generation_config=generation_config,
+            system_instruction=system_instruction
+        )
+
+        chat_session = dynamic_model.start_chat(history=[])
+        response = chat_session.send_message(text)
+        concept = response.text.strip()
+
+        print(f"Extracted concept: {concept}")
+        return jsonify({'concept': concept}), 200
+
+    except Exception as e:
+        print(f"Error extracting concept: {e}")
+        return jsonify({'error': f'Error extracting concept: {e}'}), 500
+
+
+# --- YouTube Search API ---
+YOUTUBE_API_KEY = 'AIzaSyAGS1dVGAcmMrd2tpqnI7JQv9elMyERD-4'
+YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
+
+@app.route('/search-video', methods=['POST'])
+def search_video():
+    """
+    Search YouTube videos based on extracted concept.
+    Returns one main video + 4 alternative recommendations.
+    """
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+
+        if not query:
+            return jsonify({'error': 'Missing query'}), 400
+
+        print(f"Searching YouTube for: {query}")
+
+        params = {
+            'part': 'snippet',
+            'q': query,
+            'key': YOUTUBE_API_KEY,
+            'type': 'video',
+            'maxResults': 5,
+            'videoEmbeddable': 'true'
+        }
+
+        response = requests.get(YOUTUBE_SEARCH_URL, params=params)
+        response.raise_for_status()
+        items = response.json().get('items', [])
+
+        if not items:
+            return jsonify({'error': 'No videos found'}), 404
+
+        # First result as main, rest as alternatives
+        main_video = items[0]
+        alt_videos = items[1:]
+
+        main_result = {
+            'videoId': main_video['id']['videoId'],
+            'watchUrl': f"https://www.youtube.com/watch?v={main_video['id']['videoId']}",
+            'title': main_video['snippet']['title'],
+        }
+
+        alternatives = [{
+            'videoId': vid['id']['videoId'],
+            'watchUrl': f"https://www.youtube.com/watch?v={vid['id']['videoId']}",
+            'title': vid['snippet']['title'],
+        } for vid in alt_videos]
+
+        return jsonify({'mainVideo': main_result, 'alternatives': alternatives}), 200
+
+    except Exception as e:
+        print(f"Error searching video: {e}")
+        return jsonify({'error': f'Error searching video: {e}'}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
