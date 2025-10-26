@@ -258,40 +258,42 @@ def temp_get_response():
     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
     return jsonify({"response": bot_message})
 
-# API route for Gemini response
-# @app.route("/get_response", methods=["POST"])
-# def get_response():
-#     try:
-#         data = request.get_json()
-#         user_message = data.get("message", "")
+@app.route("/extract_keywords", methods=["POST"])
+def extract_keywords():
+    data = request.get_json()
+    text = data.get("text", "")
+
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    # Construct a clear instruction
+    system_ins = "Explain the following concept in one concise sentence.only describe in 5 words thats all"
+
+    # Example using your OpenAI or model call
+    response = requests.post(
+            API_URL,
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {
+                    "parts": [{"text": system_ins}]
+                },
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": text}]
+                    }
+                ]
+            }
+        )  # <-- your function that queries GPT / LLM
+    data = response.json() 
         
-#         system_instruction = "You are a helpful assistant. Respond to the user's queries in a concise manner."
-#         response = requests.post(
-#             API_URL,
-#             headers={"Content-Type": "application/json"},
-#             json={
-#                 "system_instruction": {
-#                     "parts": [{"text": system_instruction}]
-#                 },
-#                 "contents": [
-#                     {
-#                         "role": "user",
-#                         "parts": [{"text": user_message}]
-#                     }
-#                 ]
-#             }
-#         )
-#     except Exception as e:
-#         print("Error:", e)
-#         return jsonify({"response": "Sorry, I'm having trouble responding."}), 500
-#     data = response.json()
-#     if not data.get("candidates"):
-#         return jsonify({"response": "No response from Gemini API"}), 500
-#     bot_message = data["candidates"][0]["content"]["parts"][0]["text"]
-#     return jsonify({"response": bot_message})
+    if not data.get("candidates"):
+        return jsonify({"response": "No query from Gemini API"}), 500
 
+    finalquery = data["candidates"][0]["content"]["parts"][0]["text"]
 
-# API route for Gemini response
+    return jsonify({"final": finalquery})
+
 @app.route("/get_response", methods=["POST"])
 def get_response():
     try:
