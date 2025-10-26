@@ -9,6 +9,19 @@ import base64
 import numpy as np
 from PIL import Image
 
+import google.generativeai as genai
+
+# --- Configure Gemini ---
+genai.configure(api_key="AIzaSyDL_LLEZimQKqUbPjH7AtV8somDcS4yYkE")
+
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+}
+
 # app = Flask(__name__)
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -417,6 +430,104 @@ def analyze():
     emotion = analyze_emotion(image)
     return jsonify({'emotion': emotion})
 
+model = genai.GenerativeModel(
+    model_name="gemini-2.0-flash",
+    generation_config=generation_config,
+)
+
+@app.route('/extract-concept', methods=['POST'])
+def extract_concept():
+    """
+    This route receives a query (text), extracts the main concept in ≤5 words using Gemini.
+    Example: "Explain how neural networks work" → "Neural networks basics"
+    """
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'error': 'Missing text'}), 400
+
+        system_instruction = (
+            "You are a YouTube query producer. When someone sends you a query, "
+            "understand it and MENTION only the core concept of the entire query — "
+            "in not more than 5 words. Nothing else."
+        )
+
+        dynamic_model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            generation_config=generation_config,
+            system_instruction=system_instruction
+        )
+
+        chat_session = dynamic_model.start_chat(history=[])
+        response = chat_session.send_message(text)
+        concept = response.text.strip()
+
+        print(f"Extracted concept: {concept}")
+        return jsonify({'concept': concept}), 200
+
+    except Exception as e:
+        print(f"Error extracting concept: {e}")
+        return jsonify({'error': f'Error extracting concept: {e}'}), 500
+
+
+# --- YouTube Search API ---
+YOUTUBE_API_KEY = 'AIzaSyAGS1dVGAcmMrd2tpqnI7JQv9elMyERD-4'
+YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
+
+@app.route('/search-video', methods=['POST'])
+def search_video():
+    """
+    Search YouTube videos based on extracted concept.
+    Returns one main video + 4 alternative recommendations.
+    """
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+
+        if not query:
+            return jsonify({'error': 'Missing query'}), 400
+
+        print(f"Searching YouTube for: {query}")
+
+        params = {
+            'part': 'snippet',
+            'q': query,
+            'key': YOUTUBE_API_KEY,
+            'type': 'video',
+            'maxResults': 5,
+            'videoEmbeddable': 'true'
+        }
+
+        response = requests.get(YOUTUBE_SEARCH_URL, params=params)
+        response.raise_for_status()
+        items = response.json().get('items', [])
+
+        if not items:
+            return jsonify({'error': 'No videos found'}), 404
+
+        # First result as main, rest as alternatives
+        main_video = items[0]
+        alt_videos = items[1:]
+
+        main_result = {
+            'videoId': main_video['id']['videoId'],
+            'watchUrl': f"https://www.youtube.com/watch?v={main_video['id']['videoId']}",
+            'title': main_video['snippet']['title'],
+        }
+
+        alternatives = [{
+            'videoId': vid['id']['videoId'],
+            'watchUrl': f"https://www.youtube.com/watch?v={vid['id']['videoId']}",
+            'title': vid['snippet']['title'],
+        } for vid in alt_videos]
+
+        return jsonify({'mainVideo': main_result, 'alternatives': alternatives}), 200
+
+    except Exception as e:
+        print(f"Error searching video: {e}")
+        return jsonify({'error': f'Error searching video: {e}'}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
