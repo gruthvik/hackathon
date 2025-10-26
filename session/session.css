@@ -7,11 +7,17 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   color: #222;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  animation: backgroundShift 10s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundShift {
+  0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+  100% { background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%); }
 }
 
 /* -------- Navbar -------- */
@@ -20,11 +26,22 @@ body {
   justify-content: flex-start;
   align-items: center;
   padding: 1rem 2rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(224, 224, 224, 0.3);
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  border-image: linear-gradient(45deg, #667eea, #764ba2, #f093fb) 1;
+}
+
+.navbar:hover {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.9));
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .brand {
@@ -32,10 +49,23 @@ body {
   font-size: 1.6rem;
   color: #222;
   letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.brand:hover {
+  transform: scale(1.05);
+  color: #667eea;
 }
 
 .brand .dot {
-  color: #0077b6;
+  color: #667eea;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* -------- Main Section -------- */
@@ -59,6 +89,12 @@ body {
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
+  animation: slideInFromTop 0.8s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .section-title::after {
@@ -66,14 +102,20 @@ body {
   display: block;
   width: 60px;
   height: 3px;
-  background: #00b4d8;
+  background: linear-gradient(90deg, #667eea, #764ba2);
   margin: 0.4rem auto 0;
   border-radius: 2px;
+  animation: expandLine 1s ease-out 0.5s both;
+}
+
+@keyframes expandLine {
+  from { width: 0; }
+  to { width: 60px; }
 }
 
 /* -------- Buttons -------- */
 .btn-primary {
-  background: linear-gradient(135deg, #00b4d8, #0096c7);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   padding: 0.9rem 2rem;
   border-radius: 8px;
@@ -82,13 +124,35 @@ body {
   cursor: pointer;
   font-size: 1rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 150, 199, 0.2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #0096c7, #0077b6);
-  box-shadow: 0 6px 15px rgba(0, 150, 199, 0.25);
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .btn-primary.full {
@@ -105,25 +169,51 @@ label {
   font-size: 0.95rem;
   color: #333;
   text-align: left;
+  transition: color 0.3s ease;
+}
+
+label:hover {
+  color: #667eea;
 }
 
 select,
-input[type="file"] {
+input[type="file"],
+input[type="text"] {
   width: 100%;
-  padding: 0.7rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #f9f9f9;
+  padding: 0.8rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
   color: #333;
   font-size: 0.95rem;
-  transition: border-color 0.25s ease;
-  margin-top: 0.3rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+input[type="text"] {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+select:hover,
+input[type="file"]:hover,
+input[type="text"]:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.15);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 select:focus,
-input[type="file"]:focus {
-  border-color: #00b4d8;
+input[type="file"]:focus,
+input[type="text"]:focus {
+  border-color: #667eea;
   outline: none;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 /* -------- Session Cards -------- */
@@ -131,6 +221,12 @@ input[type="file"]:focus {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .session-card {
@@ -138,25 +234,52 @@ input[type="file"]:focus {
   border: 1px solid #e5e5e5;
   border-radius: 12px;
   overflow: hidden;
-  transition: 0.3s ease;
+  transition: all 0.4s ease;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.session-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.session-card:hover::before {
+  transform: scaleX(1);
 }
 
 .session-card:hover {
-  transform: translateY(-6px);
-  border-color: #00b4d8;
-  box-shadow: 0 6px 15px rgba(0, 150, 199, 0.15);
+  transform: translateY(-8px) scale(1.02);
+  border-color: #667eea;
+  box-shadow: 0 12px 25px rgba(102, 126, 234, 0.2);
 }
 
 .session-thumbnail {
   height: 150px;
   background-size: cover;
   background-position: center;
+  transition: transform 0.3s ease;
+}
+
+.session-card:hover .session-thumbnail {
+  transform: scale(1.05);
 }
 
 .session-info {
   padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.session-card:hover .session-info {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), rgba(118, 75, 162, 0.02));
 }
 
 .session-info h3 {
@@ -164,11 +287,21 @@ input[type="file"]:focus {
   font-weight: 600;
   color: #222;
   margin-bottom: 0.3rem;
+  transition: color 0.3s ease;
+}
+
+.session-card:hover .session-info h3 {
+  color: #667eea;
 }
 
 .session-info p {
   color: #666;
   font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.session-card:hover .session-info p {
+  color: #333;
 }
 
 /* -------- Modal -------- */
@@ -176,38 +309,105 @@ input[type="file"]:focus {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.modal.show {
+  display: flex !important;
+  animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 2rem;
-  width: 360px;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 400px;
+  max-width: 90vw;
   color: #333;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.3s ease;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  animation: modalSlideIn 0.5s ease;
+  border: 2px solid transparent;
+  border-image: linear-gradient(45deg, #667eea, #764ba2, #f093fb) 1;
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  z-index: 1001;
 }
+
+.modal-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
 
 .modal-content h2 {
   font-size: 1.3rem;
   margin-bottom: 1rem;
-  color: #0077b6;
+  color: #667eea;
+  text-align: center;
+  position: relative;
+}
+
+.modal-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 1px;
 }
 
 .close {
   float: right;
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   color: #999;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1001;
+  position: relative;
 }
 
 .close:hover {
-  color: #0077b6;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.close:active {
+  transform: scale(1.05);
 }
 
 /* -------- Animations -------- */
@@ -221,9 +421,301 @@ input[type="file"]:focus {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bbb;
+  background: linear-gradient(135deg, #764ba2, #5a4fcf);
+}
+
+/* -------- Additional Interactive Features -------- */
+
+/* Loading states */
+.btn-primary.loading {
+  pointer-events: none;
+  position: relative;
+}
+
+.btn-primary.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Success/Error states */
+.success-message {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: slideDown 0.5s ease;
+}
+
+.error-message {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced form interactions */
+input[type="text"] {
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.2);
+}
+
+/* Custom file upload styling */
+input[type="file"] {
+  position: relative;
+  cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Enhanced modal animations */
+@keyframes modalSlideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-50px) scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* Modal backdrop enhancement */
+.modal {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+/* Force modal to show when displayed */
+.modal[style*="display: flex"] {
+  display: flex !important;
+}
+
+/* Ensure modal content is visible */
+.modal-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Enhanced label styling */
+label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+label:hover {
+  color: #667eea;
+  transform: translateX(2px);
+}
+
+/* Modal content additional styling */
+.modal-content {
+  position: relative;
+}
+
+.modal-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), rgba(118, 75, 162, 0.02));
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+/* Ensure all modal elements are visible and styled */
+.modal-content * {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+/* Force visibility of modal elements */
+#sessionModal {
+  display: none;
+}
+
+#sessionModal[style*="display: flex"] {
+  display: flex !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .main {
+    padding: 1.5rem 1rem;
+  }
+  
+  .session-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .modal-content {
+    width: 90%;
+    margin: 0 1rem;
+  }
+  
+  .navbar {
+    padding: 0.8rem 1rem;
+  }
+  
+  .brand {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-primary {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .session-card {
+    margin: 0 0.5rem;
+  }
+}
+
+/* Accessibility improvements */
+*:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Force modal styling - override any existing styles */
+#sessionModal.modal {
+  display: none !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1000 !important;
+}
+
+#sessionModal.modal[style*="display: flex"] {
+  display: flex !important;
+}
+
+#sessionModal .modal-content {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 20px !important;
+  padding: 2.5rem !important;
+  width: 400px !important;
+  max-width: 90vw !important;
+  color: #333 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
+  border: 2px solid transparent !important;
+  border-image: linear-gradient(45deg, #667eea, #764ba2, #f093fb) 1 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  z-index: 1001 !important;
+}
+
+#sessionModal .close {
+  float: right !important;
+  font-size: 1.8rem !important;
+  color: #999 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border: 2px solid transparent !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+  z-index: 1002 !important;
+  position: relative !important;
+}
+
+#sessionModal .close:hover {
+  color: #fff !important;
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  border-color: #667eea !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
 }
